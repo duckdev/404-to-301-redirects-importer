@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       404 to 301 - Redirects Importer
- * Description:       Bulk-import custom redirects from a CSV file. Adds an import panel to the Tools tab of the 404 to 301 settings page.
+ * Description:       Bulk import 301 redirects into 404 to 301 from CSV files or migrate them in from other redirect plugins like Redirection, Rank Math, and Yoast — no manual re-entry.
  * Version:           1.0.0
  * Author:            Joel James
  * Author URI:        https://duckdev.com/
