@@ -515,8 +515,17 @@ final class Api {
 			// `Deny from all` blocks Apache; the empty index.php
 			// blocks dir listing on nginx/lighttpd; together they
 			// cover the common shared-host setups.
-			@file_put_contents( $dir . '/.htaccess', "Deny from all\n" ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
-			@file_put_contents( $dir . '/index.php', "<?php\n// Silence is golden.\n" ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+			//
+			// `WP_Filesystem` would be the canonical alternative but
+			// bringing it up requires credentials prompting on FTP-mode
+			// installs — we're inside an authenticated admin REST call,
+			// the directory is under our own uploads path, and the
+			// payload is two tiny string literals. Direct writes here
+			// are deliberate.
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			@file_put_contents( $dir . '/.htaccess', "Deny from all\n" );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			@file_put_contents( $dir . '/index.php', "<?php\n// Silence is golden.\n" );
 		}
 
 		return $dir;

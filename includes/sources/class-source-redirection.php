@@ -77,21 +77,33 @@ final class Redirection_Source implements Source {
 	private $groups = null;
 
 	/**
-	 * @inheritDoc
+	 * Source id used on the wire and as the React state key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function id(): string {
 		return 'redirection';
 	}
 
 	/**
-	 * @inheritDoc
+	 * Human-readable name shown in the picker.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function label(): string {
 		return __( 'Redirection (John Godley)', '404-to-301-redirects-importer' );
 	}
 
 	/**
-	 * @inheritDoc
+	 * Whether the Redirection plugin's items table is installed.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
 	 */
 	public function is_available(): bool {
 		if ( null !== $this->available ) {
@@ -101,7 +113,10 @@ final class Redirection_Source implements Source {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'redirection_items';
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Detection runs once per request and the schema doesn't change
+		// often enough to warrant an object-cache round-trip — the cost
+		// of a cache miss + warm is higher than the bare `SHOW TABLES`.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 
 		$this->available = ( $found === $table );
@@ -110,7 +125,11 @@ final class Redirection_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Total number of rows in the Redirection items table.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
 	 */
 	public function count(): int {
 		if ( ! $this->is_available() ) {
@@ -126,7 +145,14 @@ final class Redirection_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Yield one batch of mapped rows from the Redirection items table.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $offset Row offset.
+	 * @param int $limit  Maximum rows per batch.
+	 *
+	 * @return iterable<int,array<string,mixed>>
 	 */
 	public function read( int $offset, int $limit ): iterable {
 		if ( ! $this->is_available() ) {
@@ -168,7 +194,11 @@ final class Redirection_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Per-row skip reasons accumulated by the most recent read() pass.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<int,array{row:int,message:string}>
 	 */
 	public function skip_summary(): array {
 		return $this->skips;
@@ -335,13 +365,18 @@ final class Redirection_Source implements Source {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'redirection_groups';
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Same rationale as `is_available()` — schema-probe call, not
+		// worth caching.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 		if ( $exists !== $table ) {
 			return array();
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// `$table` is the validated `{prefix}redirection_groups` literal
+		// from above — `prepare()` doesn't support table-name placeholders,
+		// so the interpolation is intentional and the sniff is silenced.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( "SELECT id, name FROM `{$table}`" );
 
 		$map = array();

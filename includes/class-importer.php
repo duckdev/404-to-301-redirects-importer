@@ -217,7 +217,7 @@ final class Importer {
 				// bare "could not create" leaves the user guessing
 				// between "duplicate source", "too long", "regex
 				// invalid" and so on.
-				$db_error = (string) $wpdb->last_error;
+				$db_error            = (string) $wpdb->last_error;
 				$summary['errors'][] = array(
 					'row'     => $row_id,
 					'message' => '' !== $db_error
@@ -236,7 +236,7 @@ final class Importer {
 		// list so the UI's progress feed reflects them as they arrive.
 		foreach ( $source->skip_summary() as $skip ) {
 			$summary['skipped'] += 1;
-			$summary['errors'][]  = $skip;
+			$summary['errors'][] = $skip;
 		}
 
 		return $summary;

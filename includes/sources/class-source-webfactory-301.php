@@ -79,28 +79,44 @@ final class WebFactory_301_Source implements Source {
 	private $skips = array();
 
 	/**
-	 * @inheritDoc
+	 * Source id used on the wire and as the React state key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function id(): string {
 		return 'webfactory-301';
 	}
 
 	/**
-	 * @inheritDoc
+	 * Human-readable name shown in the picker.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function label(): string {
 		return __( '301 Redirects (WebFactory)', '404-to-301-redirects-importer' );
 	}
 
 	/**
-	 * @inheritDoc
+	 * Whether either supported storage layout is present on the site.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
 	 */
 	public function is_available(): bool {
 		return '' !== $this->detect_mode();
 	}
 
 	/**
-	 * @inheritDoc
+	 * Total number of redirects in whichever storage layout is in use.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
 	 */
 	public function count(): int {
 		$mode = $this->detect_mode();
@@ -118,7 +134,14 @@ final class WebFactory_301_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Yield one batch of mapped rows from the detected storage.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $offset Row offset.
+	 * @param int $limit  Maximum rows per batch.
+	 *
+	 * @return iterable<int,array<string,mixed>>
 	 */
 	public function read( int $offset, int $limit ): iterable {
 		$mode = $this->detect_mode();
@@ -137,7 +160,11 @@ final class WebFactory_301_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Per-row skip reasons accumulated by the most recent read() pass.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<int,array{row:int,message:string}>
 	 */
 	public function skip_summary(): array {
 		return $this->skips;
@@ -166,7 +193,10 @@ final class WebFactory_301_Source implements Source {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'redirects';
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Detection runs once per request and the schema doesn't change
+		// often enough to warrant an object-cache round-trip — the cost
+		// of a cache miss + warm is higher than the bare `SHOW TABLES`.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 
 		if ( $found === $table ) {
@@ -174,7 +204,9 @@ final class WebFactory_301_Source implements Source {
 			// name is generic and could in theory be created by some
 			// other plugin. Confirm by checking the column shape
 			// before claiming the source.
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			// `prepare()` doesn't support table-name placeholders, so the
+			// interpolation is intentional and the sniff is silenced.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$columns = $wpdb->get_col( "DESC `{$table}`", 0 );
 			if ( is_array( $columns ) && in_array( 'url_from', $columns, true ) && in_array( 'url_to', $columns, true ) ) {
 				$this->mode = 'table';
@@ -260,7 +292,7 @@ final class WebFactory_301_Source implements Source {
 				continue;
 			}
 
-			$out = array(
+			$out             = array(
 				'source'        => sanitize_text_field( $source ),
 				'target_url'    => sanitize_text_field( $target ),
 				'target_type'   => 'link',
@@ -334,7 +366,7 @@ final class WebFactory_301_Source implements Source {
 		// the same as "URL is gone", which our model expresses as 410.
 		// Map onto 410 so crawlers get the cleaner signal.
 		if ( '404' === $status ) {
-			$out = array(
+			$out             = array(
 				'source'        => sanitize_text_field( $source ),
 				'target_type'   => 'none',
 				'match_type'    => 'exact',
@@ -371,7 +403,7 @@ final class WebFactory_301_Source implements Source {
 
 		$code = (int) $status;
 
-		$out = array(
+		$out             = array(
 			'source'        => sanitize_text_field( $source ),
 			'target_url'    => sanitize_text_field( $target ),
 			'target_type'   => $target_type,

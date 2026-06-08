@@ -115,14 +115,22 @@ final class CSV_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Source id used on the wire and as the React state key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function id(): string {
 		return 'csv';
 	}
 
 	/**
-	 * @inheritDoc
+	 * Human-readable name shown in the picker.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
 	 */
 	public function label(): string {
 		return __( 'CSV upload', '404-to-301-redirects-importer' );
@@ -131,7 +139,9 @@ final class CSV_Source implements Source {
 	/**
 	 * CSV is always available — the user uploads the file inline.
 	 *
-	 * @inheritDoc
+	 * @since 1.0.0
+	 *
+	 * @return bool
 	 */
 	public function is_available(): bool {
 		return true;
@@ -140,16 +150,22 @@ final class CSV_Source implements Source {
 	/**
 	 * Count data rows in the bound file.
 	 *
-	 * Cheap line-count via `SplFileObject` — we don't parse the CSV
-	 * here, we just want a ballpark for the UI's progress meter.
+	 * Cheap line-count via `fgets()` — we don't parse the CSV here,
+	 * just count newlines for the UI's progress meter.
 	 *
-	 * @inheritDoc
+	 * @since 1.0.0
+	 *
+	 * @return int
 	 */
 	public function count(): int {
 		if ( null === $this->path || ! is_readable( $this->path ) ) {
 			return 0;
 		}
 
+		// `WP_Filesystem` is the wrong tool here — counting rows in a
+		// multi-megabyte CSV through a Filesystem abstraction would
+		// load the file into memory first. We need to stream.
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		$handle = fopen( $this->path, 'r' );
 		if ( false === $handle ) {
 			return 0;
@@ -164,6 +180,7 @@ final class CSV_Source implements Source {
 			$lines += substr_count( $buffer, "\n" );
 		}
 		fclose( $handle );
+		// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		// Subtract 1 for the header row, clamp to 0+ for files that
 		// don't end on a newline (single-row files would otherwise
@@ -172,13 +189,23 @@ final class CSV_Source implements Source {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Yield one batch of mapped rows from the stashed CSV.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $offset Row offset within the data rows.
+	 * @param int $limit  Maximum rows in this batch.
+	 *
+	 * @return iterable<int,array<string,mixed>>
 	 */
 	public function read( int $offset, int $limit ): iterable {
 		if ( null === $this->path || ! is_readable( $this->path ) ) {
 			return;
 		}
 
+		// Streaming read — see `count()` for why `WP_Filesystem` would
+		// be the wrong tool here.
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		$handle = fopen( $this->path, 'r' );
 		if ( false === $handle ) {
 			return;
@@ -204,7 +231,9 @@ final class CSV_Source implements Source {
 		// match what they'd see in Excel (where the header is row 1).
 		$csv_row = 1;
 
-		while ( ( $values = fgetcsv( $handle ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
+		// `$values = fgetcsv(...)` is the idiomatic CSV read loop; the
+		// assignment-in-condition warning is a false positive here.
+		while ( ( $values = fgetcsv( $handle ) ) !== false ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found, Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			++$csv_row;
 
 			// Skip blank lines — fgetcsv returns `[ null ]` for them.
@@ -227,7 +256,7 @@ final class CSV_Source implements Source {
 			}
 
 			++$data_row;
-			$row = $this->shape_row( $headers, $values );
+			$row             = $this->shape_row( $headers, $values );
 			$row['_csv_row'] = $csv_row;
 			yield $row;
 
@@ -238,10 +267,15 @@ final class CSV_Source implements Source {
 		}
 
 		fclose( $handle );
+		// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 	}
 
 	/**
-	 * @inheritDoc
+	 * Per-row skip reasons accumulated by the most recent read() pass.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<int,array{row:int,message:string}>
 	 */
 	public function skip_summary(): array {
 		return $this->skips;
