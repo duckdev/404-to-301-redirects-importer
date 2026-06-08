@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<ruleset name="Redirects Importer">
+	<description>Coding standards for the 404 to 301 - Redirects Importer addon.</description>
+
+	<!--
+		Paths scanned by phpcs. Build output, vendor and node_modules
+		are excluded — they are generated, not authored.
+	-->
+	<file>./404-to-301-redirects-importer.php</file>
+	<file>./includes</file>
+
+	<!-- Directories that must never be linted. -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+
+	<!-- Show progress, sniff codes and coloured output. -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<!-- Use all available CPU cores. -->
+	<arg name="parallel" value="8"/>
+
+	<!-- Cache results between runs. -->
+	<arg name="cache" value=".phpcs.cache"/>
+
+	<!-- Use the WordPress and WordPress-Extra rulesets. -->
+	<rule ref="WordPress">
+		<!--
+			Allow short array syntax (`[]`). We prefer `array()` for
+			consistency with the parent plugin but do not enforce it.
+		-->
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+
+		<!--
+			File-name rule conflicts with `interface-foo.php` naming.
+			WPCS expects `class-foo.php` for both classes and interfaces.
+		-->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
+	<rule ref="WordPress-Extra"/>
+
+	<!-- Enforce WP-style hyphenated, lowercase file names. -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+	</rule>
+
+	<!-- Set the project's text domain. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="404-to-301-redirects-importer"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		Project prefixes for hooks, constants and globals.
+
+		`404_to_301` and `d404` are the public hook prefixes inherited
+		from / shared with the parent plugin; we couldn't rename them
+		without breaking the integration contract with the parent.
+		`D404_REDIRECTS_IMPORTER` is the constant prefix; the namespace is
+		`DuckDev\\FourNotFour\\RedirectsImporter`.
+	-->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="404_to_301"/>
+				<element value="d404"/>
+				<element value="D404_REDIRECTS_IMPORTER"/>
+				<element value="DuckDev\\FourNotFour\\RedirectsImporter"/>
+			</properties>
+		</properties>
+		<!--
+			`404_to_301` and `d404` start with a digit, which the sniff
+			flags as "not a valid PHP identifier prefix". The hook
+			names are part of the public contract with the parent
+			plugin — silence the structural warning; the namespaced
+			prefix above stays active for real enforcement.
+		-->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.InvalidPrefixPassed"/>
+	</rule>
+
+	<!-- PHP compatibility — minimum 7.4. -->
+	<config name="testVersion" value="7.4-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- WordPress minimum version. -->
+	<config name="minimum_wp_version" value="6.4"/>
+</ruleset>

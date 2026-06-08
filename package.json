@@ -1,0 +1,22 @@
+{
+  "name": "404-to-301-redirects-importer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bulk-import custom redirects from a CSV file. Addon for 404 to 301.",
+  "author": {
+    "name": "Joel James",
+    "url": "https://duckdev.com"
+  },
+  "license": "GPL-2.0+",
+  "main": "404-to-301-redirects-importer.php",
+  "scripts": {
+    "build": "wp-scripts build assets/src/redirects-importer.js --output-path=build",
+    "start": "wp-scripts start assets/src/redirects-importer.js --output-path=build",
+    "lint:js": "wp-scripts lint-js assets/src",
+    "format": "wp-scripts format assets/src",
+    "pack": "bash bin/pack.sh"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^31.0.0"
+  }
+}

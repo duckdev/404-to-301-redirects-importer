@@ -1,0 +1,40 @@
+{
+    "name": "duckdev/404-to-301-redirects-importer",
+    "description": "Bulk-import custom redirects from a CSV file. Addon for 404 to 301.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://duckdev.com/products/404-to-301/",
+    "authors": [
+        {
+            "name": "Joel James",
+            "homepage": "https://duckdev.com/"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpunit/phpunit": "^9.6"
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "lint:fix": "phpcbf",
+        "test": "phpunit"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

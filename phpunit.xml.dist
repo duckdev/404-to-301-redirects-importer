@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+	PHPUnit config for the addon.
+
+	No WordPress bootstrap is wired up yet — `tests/bootstrap.php` only
+	pulls in Composer's autoloader and the placeholder test. When real
+	integration tests are added, swap `bootstrap.php` for a WP-aware
+	bootstrap (eg. `wp-phpunit`) and update the testsuite path below.
+-->
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	stopOnFailure="false"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+	<testsuites>
+		<testsuite name="Addon">
+			<directory suffix=".php">./tests/phpunit/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

@@ -1,0 +1,74 @@
+name: Release
+
+# Build + publish a release ZIP every time a 'v*' tag is pushed.
+#
+# Tag → CI run → 'bin/pack.sh' → GitHub Release with the
+# '404-to-301-redirects-importer-X.Y.Z.zip' artifact attached. Plays nicely with WP-CLI's
+# update channel and with anyone who prefers downloading the ZIP
+# directly from the Releases page.
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  # 'softprops/action-gh-release' needs write access to push the
+  # release object and upload the asset.
+  contents: write
+
+jobs:
+  build:
+    name: Build + publish release ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+          tools: composer:v2, wp-cli
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install Composer dependencies (no dev)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--no-dev --optimize-autoloader'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify tag matches plugin version header
+        # Tag is 'refs/tags/vX.Y.Z'; strip the prefix and compare against
+        # the 'Version:' line in the bootstrap file so we never publish a
+        # release whose installed banner disagrees with its filename.
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          plugin_version=$(grep -E '^[[:space:]]*\*?[[:space:]]*Version:' \
+            404-to-301-redirects-importer.php | head -1 | sed -E 's/.*Version:[[:space:]]*//' | tr -d '\r')
+          echo "Tag:    $tag_version"
+          echo "Plugin: $plugin_version"
+          test "$tag_version" = "$plugin_version"
+
+      - name: Run pack.sh
+        run: bash bin/pack.sh
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          # 'pack.sh' always writes to 'releases/<slug>-<version>.zip'.
+          files: releases/404-to-301-redirects-importer-*.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true
