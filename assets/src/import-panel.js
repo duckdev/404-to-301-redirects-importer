@@ -163,10 +163,10 @@ const ImportPanel = () => {
 		<>
 			<PanelBody
 				title={__(
-					'Import redirects',
+					'Import Redirects',
 					'404-to-301-redirects-importer',
 				)}
-				initialOpen={false}
+				initialOpen={true}
 			>
 				<PanelRow>
 					<div className="d404-redirects-importer">
