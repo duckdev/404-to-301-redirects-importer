@@ -33,8 +33,10 @@ final class Assets {
 	 */
 	const SCREENS = array(
 		// Parent plugin's Settings page. The bundle injects our import
-		// panel into the Tools tab.
-		'404-errors_page_404-to-301-settings' => 'redirects-importer',
+		// panel into the Tools tab. The hook suffix follows the
+		// parent's menu structure — Settings lives under the Redirects
+		// top-level menu since 4.0.
+		'redirects_page_404-to-301-settings' => 'redirects-importer',
 	);
 
 	/**
