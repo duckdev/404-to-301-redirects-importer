@@ -9,7 +9,7 @@
  *
  * Adding a new source is a 1-class affair: implement this interface
  * and register the class with {@see Registry::add()} (or hook the
- * `404_to_301_import_sources` filter from a third-party plugin).
+ * `404_to_301_redirects_importer_sources` filter from a third-party plugin).
  *
  * @package DuckDev\FourNotFour\RedirectsImporter\Sources
  */

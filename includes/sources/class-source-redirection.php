@@ -364,7 +364,7 @@ final class Redirection_Source implements Source {
 	private function load_groups(): array {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'redirection_groups';
+		$table = esc_sql( $wpdb->prefix . 'redirection_groups' );
 		// Same rationale as `is_available()` — schema-probe call, not
 		// worth caching.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

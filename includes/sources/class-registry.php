@@ -4,7 +4,7 @@
  *
  * Single home for the list of import sources the addon knows about.
  * Bundled sources (CSV / Redirection / 301 Redirects) register
- * themselves at boot, and the `404_to_301_import_sources` filter lets
+ * themselves at boot, and the `404_to_301_redirects_importer_sources` filter lets
  * any third-party plugin slot another source in without touching the
  * addon's own code — implement {@see Source} and append the instance
  * to the array.
@@ -29,7 +29,7 @@ final class Registry {
 	/**
 	 * Registered sources, keyed by their `id()`.
 	 *
-	 * Memoised after the first `all()` call so the `404_to_301_import_sources`
+	 * Memoised after the first `all()` call so the `404_to_301_redirects_importer_sources`
 	 * filter only runs once per request — third-party callbacks that do
 	 * expensive work (eg. `class_exists`, DB lookups) don't get re-run
 	 * for every REST call.
@@ -67,7 +67,7 @@ final class Registry {
 		 *
 		 * Example:
 		 *
-		 *     add_filter( '404_to_301_import_sources', function ( $sources ) {
+		 *     add_filter( '404_to_301_redirects_importer_sources', function ( $sources ) {
 		 *         $sources[] = new My_Custom_Source();
 		 *         return $sources;
 		 *     } );
@@ -76,7 +76,7 @@ final class Registry {
 		 *
 		 * @param Source[] $bundled The default source instances.
 		 */
-		$registered = apply_filters( '404_to_301_import_sources', $bundled );
+		$registered = apply_filters( '404_to_301_redirects_importer_sources', $bundled );
 
 		if ( ! is_array( $registered ) ) {
 			$registered = $bundled;

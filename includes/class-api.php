@@ -304,14 +304,6 @@ final class Api {
 			);
 		}
 
-		if ( ! is_uploaded_file( $file['tmp_name'] ) ) {
-			return new WP_Error(
-				'rest_import_invalid_upload',
-				__( 'Uploaded file failed verification.', '404-to-301-redirects-importer' ),
-				array( 'status' => 400 )
-			);
-		}
-
 		$name = (string) ( $file['name'] ?? '' );
 		if ( '' !== $name && ! preg_match( '/\.(csv|txt)$/i', $name ) ) {
 			return new WP_Error(
@@ -330,19 +322,51 @@ final class Api {
 			);
 		}
 
-		// `wp_unique_filename()` keeps repeated uploads from clobbering
-		// each other in the unlikely event two tokens hit the dir at
-		// the same second.
-		$dest_name = wp_unique_filename( $stash, 'import-' . wp_generate_password( 8, false ) . '.csv' );
-		$dest      = trailingslashit( $stash ) . $dest_name;
+		// Route wp_handle_upload() at our private stash directory and
+		// rename to a token-style filename so two concurrent imports
+		// can't collide. wp_handle_upload() also wraps the underlying
+		// is_uploaded_file() / move_uploaded_file() pair in the
+		// WordPress-sanctioned way, which is what Plugin Check expects
+		// over direct move_uploaded_file() use.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		if ( ! @move_uploaded_file( $file['tmp_name'], $dest ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$dest_basename = 'import-' . wp_generate_password( 8, false ) . '.csv';
+
+		$stash_filter = static function ( $dirs ) use ( $stash ) {
+			$dirs['path']    = untrailingslashit( $stash );
+			$dirs['url']     = '';
+			$dirs['subdir']  = '';
+			$dirs['basedir'] = untrailingslashit( $stash );
+			$dirs['baseurl'] = '';
+			return $dirs;
+		};
+		add_filter( 'upload_dir', $stash_filter );
+
+		$uploaded = wp_handle_upload(
+			$file,
+			array(
+				'test_form'                => false,
+				'mimes'                    => array(
+					'csv' => 'text/csv',
+					'txt' => 'text/plain',
+				),
+				'unique_filename_callback' => static function () use ( $dest_basename ) {
+					return $dest_basename;
+				},
+			)
+		);
+
+		remove_filter( 'upload_dir', $stash_filter );
+
+		if ( isset( $uploaded['error'] ) ) {
 			return new WP_Error(
 				'rest_import_stash_failed',
 				__( 'Could not stash the uploaded file.', '404-to-301-redirects-importer' ),
 				array( 'status' => 500 )
 			);
 		}
+
+		$dest = $uploaded['file'];
 
 		$token = wp_generate_password( 24, false, false );
 		set_transient( self::CSV_TOKEN_PREFIX . $token, $dest, self::CSV_TOKEN_TTL );

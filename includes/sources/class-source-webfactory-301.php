@@ -192,7 +192,7 @@ final class WebFactory_301_Source implements Source {
 
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'redirects';
+		$table = esc_sql( $wpdb->prefix . 'redirects' );
 		// Detection runs once per request and the schema doesn't change
 		// often enough to warrant an object-cache round-trip — the cost
 		// of a cache miss + warm is higher than the bare `SHOW TABLES`.
