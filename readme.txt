@@ -9,7 +9,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Bulk-import custom redirects into 404 to 301 from CSV files — or migrate them straight in from the Redirection by John Godley and 301 Redirects – Redirect Manager by WebFactory plugins. No manual re-entry.
+Bulk-import redirects into 404 to 301 from CSV files, or migrate from Redirection (John Godley) and 301 Redirects – Redirect Manager (WebFactory).
 
 == Description ==
 
