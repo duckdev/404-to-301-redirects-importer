@@ -97,7 +97,7 @@ final class WebFactory_301_Source implements Source {
 	 * @return string
 	 */
 	public function label(): string {
-		return __( '301 Redirects (WebFactory)', '404-to-301-redirects-importer' );
+		return __( '301 Redirects – Redirect Manager (WebFactory)', '404-to-301-redirects-importer' );
 	}
 
 	/**
