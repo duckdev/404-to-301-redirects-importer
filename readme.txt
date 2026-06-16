@@ -9,7 +9,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Bulk-import custom redirects into 404 to 301 from CSV files — or migrate them straight in from the Redirection and 301 Redirects plugins. No manual re-entry.
+Bulk-import custom redirects into 404 to 301 from CSV files — or migrate them straight in from the Redirection and 301 Redirects – Redirect Manager plugins. No manual re-entry.
 
 == Description ==
 
@@ -22,7 +22,7 @@ Use it when you're migrating a site, switching redirect plugins, restoring a bac
 * **CSV import** — bring redirects in from a spreadsheet, a backup, or another tool that can export CSV.
 * **Plugin migration** — import redirects directly from popular plugins:
   * **Redirection** by John Godley
-  * **301 Redirects** by Webcraftic
+  * **301 Redirects – Redirect Manager**
 * **Smart matching** — exact, prefix and regex matches are detected and preserved, so your existing rules keep behaving the same way.
 * **All redirect statuses preserved** — 301, 302, 307 and the other codes the parent plugin supports come through intact, not flattened to 301.
 * **Safe by default** — duplicate redirects are skipped, invalid rows are reported, and nothing overwrites your existing rules unless you choose to.
@@ -68,7 +68,7 @@ Yes. This is an add-on for the free [404 to 301](https://wordpress.org/plugins/4
 
 = Which redirect plugins can I migrate from? =
 
-You can import redirects directly from **Redirection** (by John Godley) and **301 Redirects** (by Webcraftic). You can also import any CSV that follows the documented column format — see the [documentation](https://docs.duckdev.com/404-to-301/addons/redirects-importer/) for the full schema. More source plugins may be added in future releases.
+You can import redirects directly from **Redirection** (by John Godley) and **301 Redirects – Redirect Manager**. You can also import any CSV that follows the documented column format — see the [documentation](https://docs.duckdev.com/404-to-301/addons/redirects-importer/) for the full schema. More source plugins may be added in future releases.
 
 = What CSV format does it expect? =
 
@@ -102,7 +102,7 @@ Read the [documentation](https://docs.duckdev.com/404-to-301/addons/redirects-im
 == Changelog ==
 
 = 1.0.0 =
-* New: Initial release. CSV import plus direct migration from the Redirection and 301 Redirects plugins.
+* New: Initial release. CSV import plus direct migration from the Redirection and 301 Redirects – Redirect Manager plugins.
 
 == Upgrade Notice ==
 
