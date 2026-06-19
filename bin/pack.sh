@@ -25,6 +25,7 @@ DIST_DIR="$ROOT/releases"
 INCLUDES=(
 	"404-to-301-redirects-importer.php"
 	"readme.txt"
+	"uninstall.php"
 	"includes"
 	"build"
 	"languages"
