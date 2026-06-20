@@ -9,7 +9,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Bulk-import redirects into 404 to 301 from CSV files, or migrate from Redirection (John Godley) and 301 Redirects – Redirect Manager (WebFactory).
+Bulk import custom redirects from CSV, or migrate redirects from other redirect plugins. Fast, safe import with duplicate detection.
 
 == Description ==
 
@@ -96,8 +96,9 @@ Read the [documentation](https://docs.duckdev.com/404-to-301/addons/redirects-im
 
 == Screenshots ==
 
-1. The Import panel on the Tools tab — pick a CSV file or another plugin to migrate from.
-2. Import summary showing imported, skipped and invalid rows.
+1. Import form on the Tools tab with **CSV file** selected as the import source.
+2. Import form on the Tools tab with **Redirection** selected as the import source.
+3. Import preview modal — review the parsed rows before starting the import.
 
 == Changelog ==
 
